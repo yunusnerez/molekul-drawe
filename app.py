@@ -1,7 +1,7 @@
 import streamlit as st
 from rdkit import Chem
 from rdkit.Chem.Draw import rdMolDraw2D
-import requests  # İnternetten veri çekmek için
+import requests
 
 # Sayfa Ayarları
 st.set_page_config(page_title="Tez Molekül Çizici", page_icon="🧪")
@@ -13,7 +13,7 @@ def get_smiles_from_name(molecule_name):
     try:
         response = requests.get(url, timeout=5)
         if response.status_code == 200:
-            return response.text.strip()  # Başarılıysa SMILES kodunu döndür
+            return response.text.strip()
         else:
             return None
     except:
@@ -22,13 +22,12 @@ def get_smiles_from_name(molecule_name):
 # --- ARAYÜZ ---
 st.title("🧪 Akıllı Molekül Çizici (PubChem Entegreli)")
 st.markdown("""
-Molekülün **İngilizce adını** yazın (örn: *Aspirin, Ibuprofen, Caffeine*), sistem otomatik olarak SMILES kodunu bulup çizecektir.
+Molekülün **İngilizce adını** yazın (örn: *Aspirin, Ibuprofen, Caffeine*), sistem otomatik olarak SMILES kodunu bulup kutuya yazacaktır.
 """)
 
-# Oturum Durumu (Session State) - Hafıza
-# Kullanıcı arama yaptığında sonucun kaybolmaması için gereklidir.
-if 'smiles_input' not in st.session_state:
-    st.session_state['smiles_input'] = "CC(=O)OC1=CC=CC=C1C(=O)O" # Varsayılan: Aspirin
+# Oturum Durumu Başlatma (Hafıza)
+if "smiles_entry" not in st.session_state:
+    st.session_state.smiles_entry = "CC(=O)OC1=CC=CC=C1C(=O)O" # Varsayılan: Aspirin
 
 # 1. ARAMA BÖLÜMÜ
 col_search1, col_search2 = st.columns([3, 1])
@@ -36,34 +35,33 @@ with col_search1:
     search_name = st.text_input("Molekül Adı ile Ara (İngilizce):", placeholder="Örn: Cholesterol")
 with col_search2:
     st.write("")
-    st.write("") # Butonu hizalamak için boşluk
+    st.write("") 
     if st.button("🔍 Bul ve Getir"):
         if search_name:
-            with st.spinner("PubChem veritabanı taranıyor..."):
+            with st.spinner("Aranıyor..."):
                 found_smiles = get_smiles_from_name(search_name)
                 if found_smiles:
-                    st.session_state['smiles_input'] = found_smiles
+                    # KRİTİK DÜZELTME BURADA:
+                    # Doğrudan input kutusunun hafızasını güncelliyoruz
+                    st.session_state.smiles_entry = found_smiles
                     st.success(f"Bulundu: {search_name}")
+                    # Sayfayı hemen yenileyip kutuyu güncel gösteriyoruz
+                    st.rerun()
                 else:
-                    st.error("Molekül bulunamadı! İngilizce ismini doğru yazdığınızdan emin olun.")
+                    st.error("Bulunamadı! İsmi İngilizce yazdığınızdan emin olun.")
         else:
             st.warning("Lütfen bir isim yazın.")
 
 st.markdown("---")
 
 # 2. ÇİZİM BÖLÜMÜ
-# Arama sonucunda bulunan veya elle girilen kod buraya gelir
-smiles = st.text_input("SMILES Kodu (Otomatik Dolatır veya Düzenleyebilirsiniz):", 
-                       value=st.session_state['smiles_input'],
-                       key="smiles_key") 
-                       # key kullanarak input'u session_state ile senkronize ediyoruz
+# key="smiles_entry" diyerek bu kutuyu yukarıdaki session_state'e bağladık.
+# Artık yukarıda st.session_state.smiles_entry değişince burası da değişecek.
+smiles = st.text_input("SMILES Kodu (Otomatik Dolatır veya Düzenleyebilirsiniz):", key="smiles_entry")
 
 cozunurluk = st.slider("Görsel Çözünürlüğü (Piksel)", 500, 2000, 1000)
 
 if st.button("🎨 Çizimi Oluştur"):
-    # input değerini session state'e güncelle (elle düzenleme yapılırsa diye)
-    st.session_state['smiles_input'] = smiles 
-    
     if not smiles:
         st.warning("Lütfen SMILES kodu girin.")
     else:
