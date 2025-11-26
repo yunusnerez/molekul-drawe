@@ -4,7 +4,35 @@ from rdkit.Chem.Draw import rdMolDraw2D
 import requests
 
 # Sayfa Ayarları
-st.set_page_config(page_title="Tez Molekül Çizici", page_icon="🧪")
+st.set_page_config(page_title="Molekül Çizici", page_icon="🧪")
+
+gizleme_kodu = """
+<style>
+    /* Sağ üstteki 'Deploy', 'Fork', 'Settings' menüsünü gizle */
+    [data-testid="stToolbar"] {
+        visibility: hidden;
+        display: none;
+    }
+    
+    /* Üstteki renkli şeridi ve header alanını gizle */
+    .stApp > header {
+        visibility: hidden;
+        display: none;
+    }
+    
+    /* En alttaki 'Made with Streamlit' yazısını gizle */
+    footer {
+        visibility: hidden;
+        display: none;
+    }
+    
+    /* Sayfanın üst kısmındaki boşluğu biraz azalt (header gidince boşluk kalmasın) */
+    .block-container {
+        padding-top: 2rem;
+    }
+</style>
+"""
+st.markdown(gizleme_kodu, unsafe_allow_html=True)
 
 # --- FONKSİYON: PubChem'den Veri Çekme ---
 def get_smiles_from_name(molecule_name):
