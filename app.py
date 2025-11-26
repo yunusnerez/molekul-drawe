@@ -31,7 +31,6 @@ if st.button("Çiz ve Hazırla"):
                 # Çizim ayarları (Tez için optimize edildi)
                 opts = d.drawOptions()
                 opts.bondLineWidth = 3        # Çizgiler kalın ve net
-                opts.atomLabelFontSize = 40   # Yazılar okunabilir
                 opts.clearBackground = True   # Arka plan şeffaf
                 opts.padding = 0.05           # Kenar boşluğu
                 
