@@ -1,0 +1,7 @@
+name: molekul-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - rdkit
+  - streamlit
