@@ -28,6 +28,8 @@ Molekülün **İngilizce adını** yazın (örn: *Aspirin, Ibuprofen, Caffeine*)
 # Oturum Durumu Başlatma (Hafıza)
 if "smiles_entry" not in st.session_state:
     st.session_state.smiles_entry = "CC(=O)OC1=CC=CC=C1C(=O)O" # Varsayılan: Aspirin
+if "search_result" not in st.session_state:
+    st.session_state.search_result = None
 
 # 1. ARAMA BÖLÜMÜ
 col_search1, col_search2 = st.columns([3, 1])
@@ -36,21 +38,26 @@ with col_search1:
 with col_search2:
     st.write("")
     st.write("") 
-    if st.button("🔍 Bul ve Getir"):
+    if st.button("🔍 Bul"):
         if search_name:
             with st.spinner("Aranıyor..."):
                 found_smiles = get_smiles_from_name(search_name)
                 if found_smiles:
-                    # KRİTİK DÜZELTME BURADA:
-                    # Doğrudan input kutusunun hafızasını güncelliyoruz
-                    st.session_state.smiles_entry = found_smiles
+                    st.session_state.search_result = found_smiles
                     st.success(f"Bulundu: {search_name}")
-                    # Sayfayı hemen yenileyip kutuyu güncel gösteriyoruz
-                    st.rerun()
                 else:
+                    st.session_state.search_result = None
                     st.error("Bulunamadı! İsmi İngilizce yazdığınızdan emin olun.")
         else:
             st.warning("Lütfen bir isim yazın.")
+
+# Arama Sonucu ve Seçme Alanı
+if st.session_state.search_result:
+    st.info(f"Bulunan SMILES: {st.session_state.search_result}")
+    if st.button("✅ Bu Molekülü Seç"):
+        st.session_state.smiles_entry = st.session_state.search_result
+        st.session_state.search_result = None # Seçtikten sonra sonucu temizle
+        st.rerun()
 
 st.markdown("---")
 
